@@ -358,3 +358,37 @@
     (ok true)
   )
 )
+
+;; Extract fees accumulated by the protocol
+(define-public (extract-protocol-fees (recipient principal))
+  (let (
+    (admin (var-get contract-admin))
+    (fee-balance (var-get protocol-fee-balance))
+  )
+    ;; Only contract admin can extract fees
+    (asserts! (is-eq tx-sender admin) (err ERR-UNAUTHORIZED))
+    (asserts! (> fee-balance u0) (err ERR-INSUFFICIENT-FUNDS))
+    
+    ;; Reset fee balance
+    (var-set protocol-fee-balance u0)
+    
+    ;; Return success and balance
+    (ok fee-balance)
+  )
+)
+
+;; Change contract admin
+(define-public (set-contract-admin (new-admin principal))
+  (let (
+    (admin (var-get contract-admin))
+  )
+    ;; Only current admin can change admin
+    (asserts! (is-eq tx-sender admin) (err ERR-UNAUTHORIZED))
+    
+    ;; Set new admin
+    (var-set contract-admin new-admin)
+    
+    ;; Return success
+    (ok true)
+  )
+)
